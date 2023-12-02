@@ -25,6 +25,17 @@ fn iter[X](self: List[X], f: (X) -> Unit) -> Unit {
   }
 }
 
+fn iter_if[T](self : List[T], f : (T) -> Bool) -> Unit {
+  match self {
+    Nil => ()
+    Cons(x, rest) => {
+      if f(x) {
+        iter_if(rest, f)
+      }
+    }
+  }
+}
+
 fn to_string[T : Show](self : List[T]) -> String {
   fn go(ls : List[T]){
     match ls {
@@ -148,6 +159,8 @@ fn all[T](self : List[T], pred : (T) -> Bool) -> Bool {
   }
 }
 
+
+
 fn String::make(n : Int, ch : Char) -> String {
     fn go(i : Int) -> String {
     if i == 0 {
@@ -169,5 +182,19 @@ fn single[T](self : List[T]) -> Result[T, Bool] {
     Nil => Err(false)
     Cons(x, Nil) => Ok(x)
     _ => Err(true)
+  }
+}
+
+fn isSingleton[T](self : List[T]) -> Bool {
+  match self {
+    Cons(_, Nil) => true
+    _            => false
+  }
+}
+
+fn length[T](self: List[T]) -> Int {
+  match self {
+    Nil => 0
+    Cons(_, xs) => 1 + xs.length()
   }
 }

@@ -13,6 +13,20 @@ fn square_to_int(s : String) -> Int {
   }
 }
 
+fn contains[T](self : SquareMap[T], pred : (T) -> Bool) -> Bool {
+  var result = false
+  var i = 0
+  while i < self.contents.length() {
+    result = result || pred(self.contents[i])
+    if result {
+      break
+    } else {
+      i = i + 1
+    }
+  }
+  return result
+}
+
 fn SquareMap::new[T](val : T) -> SquareMap[T] {
   { contents : Array::make(81, val) }
 }
@@ -165,7 +179,7 @@ fn assign(values : SquareMap[List[Char]], key : String, val : Char) -> Bool {
 }
 
 
-fn parseGrid(s : String) -> Option[SquareMap[List[Char]]] {
+fn parseGrid(s : String) -> SquareMap[List[Char]] {
   let values : SquareMap[List[Char]] = SquareMap::new(Nil)
   let digits = cols.to_list()
   // 初始化values
@@ -177,18 +191,16 @@ fn parseGrid(s : String) -> Option[SquareMap[List[Char]]] {
   })
   var pairs = zip(squares, chars)
   while not(pairs.isNil()) {
-    // print("oops")
     let Cons(p, ps) = pairs
     let (square, digit) = p
     if digit.in('1', '9') {
       if not(assign(values, square, digit)) {
-        return None
+        abort("parseGrid(): found contradiction")
       }
     }
     pairs = ps
   }
-  
-  return Some(values)
+  return values
 }
 
 fn printGrid(grid : SquareMap[List[Char]]) {
@@ -221,5 +233,47 @@ fn printGrid(grid : SquareMap[List[Char]]) {
       print(" ")
     }
     i = i + 1
+  }
+}
+
+fn search(values : SquareMap[List[Char]]) -> Option[SquareMap[List[Char]]] {
+  if values.contains(fn (digits){ not(digits.isSingleton()) }) {
+    var minsq = ""
+    var n = 10
+    squares.iter(fn (sq) {
+      let len = values[sq].length()
+      if len > 1 {
+        if len < n {
+          n = len
+          minsq = sq
+        }
+      }
+    })
+    var result : Option[SquareMap[List[Char]]] = None
+    values[minsq].iter_if(fn (digit) {
+      let another = values.copy()
+      if assign(another, minsq, digit) {
+        let temp = search(another)
+        match temp {
+          None => true
+          Some(v) => {
+            result = Some(v)
+            false
+          }
+        }
+      } else {
+        true
+      }
+    })
+    return result
+  } else {
+    return Some(values)
+  }
+}
+
+fn solve(g : String) -> SquareMap[List[Char]] {
+  match search(parseGrid(g)) {
+    None => abort("solve() : cant solve \(g)")
+    Some(v) => v
   }
 }
