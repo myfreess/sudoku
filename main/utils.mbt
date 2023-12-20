@@ -54,17 +54,6 @@ fn to_string[T : Show](self : Option[T]) -> String {
   }
 }
 
-// fn to_string[X : Show, Y : Show](self : (X, Y)) -> String {
-//   let (x, y) = self
-//   "(\(x), \(y))"
-// }
-
-fn concat[X](self: List[X], ys: List[X]) -> List[X] {
-  match self {
-    Nil => ys
-    Cons(x, rest) => Cons(x, concat(rest, ys))
-  }
-}
 
 fn exist[T](self : List[T], pred : (T) -> Bool) -> Bool {
   match self {
@@ -150,13 +139,6 @@ fn reverse[X](self: List[X]) -> List[X] {
   }
 
   go(Nil, self)
-}
-
-fn all[T](self : List[T], pred : (T) -> Bool) -> Bool {
-  match self {
-    Nil => true
-    Cons(x, xs) => pred(x) && all(xs, pred)
-  }
 }
 
 

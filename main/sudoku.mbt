@@ -129,6 +129,8 @@ let peers : SquareMap[List[String]] = newPeers()
 
 // Grid
 
+
+
 fn eliminate(values : SquareMap[List[Char]], key : String, val : Char) -> Bool {
   if not(values[key].exist(fn (v) { v == val })) {
     return true
@@ -180,12 +182,8 @@ fn assign(values : SquareMap[List[Char]], key : String, val : Char) -> Bool {
 
 
 fn parseGrid(s : String) -> SquareMap[List[Char]] {
-  let values : SquareMap[List[Char]] = SquareMap::new(Nil)
   let digits = cols.to_list()
-  // 初始化values
-  squares.iter(fn (square){
-    values[square] = digits
-  })
+  let values : SquareMap[List[Char]] = SquareMap::new(digits)
   let chars = s.to_list().filter(fn (ch){
     ch.in('0', '9') || ch == '.'
   })
