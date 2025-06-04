@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>9x9 Grid</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        table {
+            border-collapse: collapse;
+            border: 2px solid black;
+        }
+        td {
+            border: 1px solid black;
+            padding: 0;
+        }
+        input {
+            width: 30px;
+            height: 30px;
+            border: none;
+            text-align: center;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <table id="grid"></table>
+    <button onclick="getValues()">Solve</button>
+    <script>
+        // 创建9x9的网格
+        var table = document.getElementById('grid');
+        for (var i = 0; i < 9; i++) {
+            var row = document.createElement('tr');
+            for (var j = 0; j < 9; j++) {
+                var cell = document.createElement('td');
+                var input = document.createElement('input');
+                input.setAttribute('type', 'number');
+                input.setAttribute('min', '1');
+                input.setAttribute('max', '9');
+                cell.appendChild(input);
+                row.appendChild(cell);
+            }
+            table.appendChild(row);
+        }
+
+        var moonbit_output_buffer = '';
+
+        const importObject = {
+            spectest: {
+                print_char: (charcode) => {
+                    let ch = String.fromCharCode(charcode);
+                    if (ch === '\n') {
+                        console.log(moonbit_output_buffer);
+                        moonbit_output_buffer = '';
+                    } else {
+                        moonbit_output_buffer += ch;
+                    }
+                }
+            },
+        }
+
+        // 从Moonbit import 一些函数
+        let assign = null;
+        let initValues = null;
+        let readValues = null;
+        let solve = null;
+        let length_of = null;
+
+        // 导入所需函数
+        WebAssembly.instantiateStreaming(
+            fetch("target/wasm-gc/release/build/sudoku.wasm"),
+            importObject
+            ).then((obj) => {
+                assign = obj.instance.exports["ij_assign"]
+                initValues = obj.instance.exports["init_values"]
+                readValues = obj.instance.exports["ij_read"]
+                solve = obj.instance.exports["solve_values"]
+        });
+
+        // 获取网格的值
+        function getValues() {
+            let values = initValues()
+            for (var i = 0; i < 9; i++) {
+                for (var j = 0; j < 9; j++) {
+                    // 读取并转int
+                    var val = table.rows[i].cells[j].firstChild.value;
+                    if (val) {
+                        assign(values, i, j, parseInt(val))
+                    }
+                }
+            }
+            values = solve(values)
+            for (var i = 0; i < 9; i++) {
+                for (var j = 0; j < 9; j++) {
+                    table.rows[i].cells[j].firstChild.value = readValues(values, i, j).toString();
+                }
+            }
+        }
+    </script>
+</body>
+</html>

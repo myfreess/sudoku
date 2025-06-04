@@ -1,0 +1,20 @@
+{
+    "link": {
+        "wasm": {
+            "exports": [
+                "init_values",
+                "solve_values",
+                "ij_assign",
+                "ij_read"
+            ]
+        },
+        "wasm-gc": {
+            "exports": [
+                "init_values",
+                "solve_values",
+                "ij_assign",
+                "ij_read"
+            ]
+        }
+    }
+}
